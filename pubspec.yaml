@@ -1,0 +1,105 @@
+name: droidclaw
+description: DroidClaw - The Ultimate AI Agent for Android. OpenClaw in your pocket.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # ═══════════════════════════════════════════════════
+  # 🎨 UI & Design
+  # ═══════════════════════════════════════════════════
+  google_fonts: ^6.1.0
+  flutter_animate: ^4.3.0
+  shimmer: ^3.0.0
+  lottie: ^2.7.0
+  cached_network_image: ^3.3.0
+  flutter_staggered_animations: ^1.1.1
+  flutter_markdown: ^0.6.18
+  markdown: ^7.2.1
+  animate_do: ^3.1.2
+  
+  # ═══════════════════════════════════════════════════
+  # 🧠 State Management
+  # ═══════════════════════════════════════════════════
+  provider: ^6.1.1
+  flutter_riverpod: ^2.4.9
+  
+  # ═══════════════════════════════════════════════════
+  # 💾 Database & Storage
+  # ═══════════════════════════════════════════════════
+  sqflite: ^2.3.0
+  path_provider: ^2.1.1
+  shared_preferences: ^2.2.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_secure_storage: ^9.0.0
+  
+  # ═══════════════════════════════════════════════════
+  # 🌐 Networking
+  # ═══════════════════════════════════════════════════
+  http: ^1.1.0
+  dio: ^5.4.0
+  web_socket_channel: ^2.4.0
+  
+  # ═══════════════════════════════════════════════════
+  # 🤖 AI Providers
+  # ═══════════════════════════════════════════════════
+  dart_openai: ^5.1.0
+  
+  # ═══════════════════════════════════════════════════
+  # 🎤 Voice & Audio
+  # ═══════════════════════════════════════════════════
+  speech_to_text: ^6.6.0
+  flutter_tts: ^3.8.5
+  audioplayers: ^5.2.1
+  record: ^5.0.5
+  
+  # ═══════════════════════════════════════════════════
+  # 📱 Platform & Device
+  # ═══════════════════════════════════════════════════
+  url_launcher: ^6.2.1
+  webview_flutter: ^4.4.2
+  file_picker: ^6.1.1
+  share_plus: ^7.2.1
+  image_picker: ^1.0.7
+  permission_handler: ^11.1.0
+  device_info_plus: ^9.1.1
+  package_info_plus: ^5.0.1
+  local_auth: ^2.1.8
+  path: ^1.8.3
+  
+  # ═══════════════════════════════════════════════════
+  # 🔔 Notifications & Background
+  # ═══════════════════════════════════════════════════
+  flutter_local_notifications: ^16.3.2
+  workmanager: ^0.5.2
+  
+  # ═══════════════════════════════════════════════════
+  # 📊 Utilities
+  # ═══════════════════════════════════════════════════
+  uuid: ^4.2.1
+  intl: ^0.19.0
+  crypto: ^3.0.3
+  cron: ^0.6.0
+  collection: ^1.18.0
+  connectivity_plus: ^5.0.2
+  battery_plus: ^5.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.7
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/
+    - assets/animations/
+    - config/
