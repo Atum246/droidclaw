@@ -3,6 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../browser/browser_engine.dart';
+import '../agents/sub_agent_manager.dart';
+import '../tools/tool_creator.dart';
+import '../skills/skill_creator.dart';
+import '../research/deep_research_engine.dart';
 
 /// 🔧 Tool Engine — 80+ Tools (ULTRA Edition)
 /// Can do ANYTHING on your phone + remote control
@@ -238,6 +242,19 @@ class ToolEngine extends ChangeNotifier {
     _reg('browser_search', 'Search on website', '🔍', 'browser', {'url': 'string', 'searchSelector': 'string', 'query': 'string', 'submitSelector': 'string'});
     _reg('browser_download', 'Download file from page', '⬇️', 'browser', {'url': 'string', 'savePath': 'string'});
     _reg('browser_multi_step', 'Run multiple browser actions', '🔄', 'browser', {'steps': 'string'});
+
+    // ═══════════════════════════════════════════
+    // 🤖 META: SUB-AGENTS & AUTO-CREATION (8)
+    // ═══════════════════════════════════════════
+    _reg('spawn_agent', 'Spawn a sub-agent for parallel tasks', '🤖', 'meta', {'task': 'string', 'label': 'string', 'model': 'string'});
+    _reg('list_agents', 'List all running sub-agents', '📋', 'meta', {});
+    _reg('kill_agent', 'Kill a sub-agent', '☠️', 'meta', {'agentId': 'string'});
+    _reg('steer_agent', 'Send message to a sub-agent', '🧭', 'meta', {'agentId': 'string', 'message': 'string'});
+    _reg('deep_research', 'Multi-step deep research on any topic', '🔬', 'meta', {'topic': 'string', 'depth': 'integer', 'focus': 'string'});
+    _reg('create_tool', 'Auto-create a new tool for a specific task', '🔧', 'meta', {'name': 'string', 'description': 'string', 'category': 'string', 'implementation': 'string'});
+    _reg('create_skill', 'Auto-create a new skill', '⚡', 'meta', {'name': 'string', 'description': 'string', 'category': 'string', 'triggers': 'string', 'systemPrompt': 'string'});
+    _reg('list_created_tools', 'List all auto-created tools', '📋', 'meta', {});
+    _reg('list_created_skills', 'List all auto-created skills', '📋', 'meta', {});
   }
 
   Future<ToolResult> execute(String name, Map<String, dynamic> params) async {
@@ -277,7 +294,56 @@ class ToolEngine extends ChangeNotifier {
       case 'browser_search': { final r = await BrowserEngine.I.search(url: params['url'], searchSelector: params['searchSelector'], query: params['query'], submitSelector: params['submitSelector']); return ToolResult(content: r); }
       case 'browser_download': return ToolResult(content: '⬇️ Download initiated from ${params['url']}');
       case 'browser_multi_step': { final steps = (jsonDecode(params['steps'] ?? '[]') as List).cast<Map<String, dynamic>>(); final r = await BrowserEngine.I.multiStep(steps); return ToolResult(content: r); }
-      default: return ToolResult(content: '✅ ${tool.name} executed successfully');
+
+      // ═══ META: SUB-AGENTS & AUTO-CREATION ═══
+      case 'spawn_agent': {
+        final agent = await SubAgentManager.I.spawn(task: params['task'], label: params['label'], model: params['model']);
+        return ToolResult(content: '🤖 Sub-agent spawned!\nID: ${agent.id}\nLabel: ${agent.label}\nTask: ${agent.task}\nStatus: ${agent.status.name}');
+      }
+      case 'list_agents': {
+        final agents = SubAgentManager.I.agents.values.toList();
+        if (agents.isEmpty) return ToolResult(content: '📋 No active sub-agents');
+        final list = agents.map((a) => '• ${a.label} [${a.status.name}]: ${a.task}').join('\n');
+        return ToolResult(content: '📋 Sub-agents:\n$list');
+      }
+      case 'kill_agent': {
+        await SubAgentManager.I.kill(params['agentId']);
+        return ToolResult(content: '☠️ Agent ${params['agentId']} killed');
+      }
+      case 'steer_agent': {
+        await SubAgentManager.I.steer(params['agentId'], params['message']);
+        return ToolResult(content: '🧭 Steered agent: ${params['message']}');
+      }
+      case 'deep_research': {
+        final project = await DeepResearchEngine.I.research(topic: params['topic'], depth: params['depth'] ?? 3, specificFocus: params['focus']);
+        return ToolResult(content: '🔬 Research started!\nID: ${project.id}\nTopic: ${project.topic}\nDepth: ${project.depth}\nUse research_id to check status.');
+      }
+      case 'create_tool': {
+        final tool = await ToolCreator.I.createTool(name: params['name'], description: params['description'], category: params['category'] ?? 'custom', icon: '🔧', parameters: {}, implementation: params['implementation'] ?? '');
+        return ToolResult(content: '🔧 Tool created: ${tool.name}\nDescription: ${tool.description}\nID: ${tool.id}');
+      }
+      case 'create_skill': {
+        final skill = await SkillCreator.I.createSkill(name: params['name'], description: params['description'], category: params['category'] ?? 'custom', icon: '⚡', triggers: List<String>.from((params['triggers'] ?? '').split(',').map((s) => s.trim())), systemPrompt: params['systemPrompt'] ?? '');
+        return ToolResult(content: '⚡ Skill created: ${skill.name}\nDescription: ${skill.description}\nTriggers: ${skill.triggers.join(", ")}');
+      }
+      case 'list_created_tools': {
+        final tools = ToolCreator.I.createdTools;
+        if (tools.isEmpty) return ToolResult(content: '📋 No auto-created tools yet');
+        final list = tools.values.map((t) => '• ${t.name}: ${t.description} [used ${t.useCount}x]').join('\n');
+        return ToolResult(content: '📋 Auto-created tools:\n$list');
+      }
+      case 'list_created_skills': {
+        final skills = SkillCreator.I.createdSkills;
+        if (skills.isEmpty) return ToolResult(content: '📋 No auto-created skills yet');
+        final list = skills.values.map((s) => '• ${s.name}: ${s.description}').join('\n');
+        return ToolResult(content: '📋 Auto-created skills:\n$list');
+      }
+
+      default:
+        // Check dynamic executors
+        final dynamicExec = _dynamicExecutors[name];
+        if (dynamicExec != null) return await dynamicExec(params);
+        return ToolResult(content: '✅ ${tool.name} executed successfully');
     }
   }
 
@@ -309,9 +375,24 @@ class ToolEngine extends ChangeNotifier {
     } catch (e) { return ToolResult(content: 'HTTP error: $e', isError: true); }
   }
 
-  Future<ToolResult> _browserOpen(Map<String, dynamic> p) async {
-    final url = p['url'] ?? 'https://google.com';
-    return ToolResult(content: '🌐 Browser opened: $url\nPage loaded successfully. Ready for automation.\nUse browser_click, browser_type, browser_screenshot etc. to interact.');
+  // ═══════════════════════════════════════════
+  // 🔌 DYNAMIC TOOL REGISTRATION
+  // ═══════════════════════════════════════════
+
+  final Map<String, Future<ToolResult> Function(Map<String, dynamic>)> _dynamicExecutors = {};
+
+  /// Register a dynamically created tool at runtime
+  void registerDynamicTool({
+    required String name,
+    required String description,
+    required String icon,
+    required String category,
+    required Map<String, dynamic> parameters,
+    required Future<ToolResult> Function(Map<String, dynamic>) executor,
+  }) {
+    _tools[name] = Tool(name: name, description: description, icon: icon, category: category, parameters: parameters);
+    _dynamicExecutors[name] = executor;
+    notifyListeners();
   }
 }
 

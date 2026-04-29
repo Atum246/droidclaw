@@ -28,6 +28,20 @@ class SkillEngine extends ChangeNotifier {
     ).toList();
   }
 
+  /// Register a dynamically created skill at runtime
+  void registerDynamicSkill({
+    required String id,
+    required String name,
+    required String description,
+    required String category,
+    required String icon,
+    required List<String> triggers,
+  }) {
+    _skills[id] = Skill(id: id, name: name, description: description, category: category, icon: icon, triggers: triggers);
+    _enabled[id] = true;
+    notifyListeners();
+  }
+
   void _loadState() {
     final data = _prefs.getString('skill_states');
     if (data != null) {
