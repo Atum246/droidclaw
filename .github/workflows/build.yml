@@ -66,10 +66,26 @@ jobs:
         continue-on-error: true  # Don't fail if no tests yet
 
       # ─────────────────────────────────────────
+      # 🔧 Debug: Check Android project structure
+      # ─────────────────────────────────────────
+      - name: 🔧 Debug Android Structure
+        run: |
+          echo "=== Android directory ==="
+          find android -type f | head -50
+          echo "=== Gradle wrapper ==="
+          ls -la android/gradle/wrapper/ 2>/dev/null || echo "NO wrapper dir"
+          echo "=== Assets ==="
+          ls -la assets/ 2>/dev/null || echo "NO assets dir"
+          echo "=== Config ==="
+          ls -la config/ 2>/dev/null || echo "NO config dir"
+          echo "=== Flutter doctor ==="
+          flutter doctor -v
+
+      # ─────────────────────────────────────────
       # 🏗️ Build APK (fat APK - all architectures)
       # ─────────────────────────────────────────
       - name: 🏗️ Build Release APK
-        run: flutter build apk --release
+        run: flutter build apk --release --verbose
 
       # ─────────────────────────────────────────
       # 📊 Build Info
