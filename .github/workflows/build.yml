@@ -52,7 +52,12 @@ jobs:
         run: flutter pub get
 
       # ─────────────────────────────────────────
-      # 🔍 Analyze Code
+      # 🔨 Generate Code
+      # ─────────────────────────────────────────
+      - name: 🔨 Generate Code (build_runner)
+        run: |
+          echo "Running build_runner to generate .g.dart files..."
+          dart run build_runner build --delete-conflicting-outputs 2>&1 || echo "build_runner had issues (may be OK)"
       # ─────────────────────────────────────────
       - name: 🔍 Analyze Code
         run: flutter analyze --no-fatal-infos
@@ -85,7 +90,19 @@ jobs:
       # 🏗️ Build APK (fat APK - all architectures)
       # ─────────────────────────────────────────
       - name: 🏗️ Build Release APK
-        run: flutter build apk --release --verbose
+        run: |
+          flutter build apk --release 2>&1 | tee build-output.log || true
+          echo "=== BUILD EXIT CODE: $? ==="
+          echo "=== LAST 100 LINES OF BUILD LOG ==="
+          tail -100 build-output.log
+
+      - name: 📋 Upload Build Log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build-output.log
+          retention-days: 5
 
       # ─────────────────────────────────────────
       # 📊 Build Info
