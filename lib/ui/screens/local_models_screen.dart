@@ -55,9 +55,9 @@ class _LocalModelsScreenState extends State<LocalModelsScreen> {
               child: Container(margin: const EdgeInsets.symmetric(horizontal: 3),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: sel ? DroidTheme.accent.withOpacity(0.15) : DroidTheme.surface,
+                  color: sel ? DroidTheme.accent.withValues(alpha: 0.15) : DroidTheme.surface,
                   borderRadius: BorderRadius.circular(7),
-                  border: Border.all(color: sel ? DroidTheme.accent.withOpacity(0.4) : DroidTheme.border)),
+                  border: Border.all(color: sel ? DroidTheme.accent.withValues(alpha: 0.4) : DroidTheme.border)),
                 child: Text(f, style: TextStyle(
                   color: sel ? DroidTheme.accent : DroidTheme.txt2, fontSize: 11,
                   fontWeight: sel ? FontWeight.w600 : FontWeight.w400))));
@@ -88,10 +88,10 @@ class _LocalModelsScreenState extends State<LocalModelsScreen> {
               return Container(margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: isActive ? DroidTheme.accent.withOpacity(0.08) : DroidTheme.surface,
+                  color: isActive ? DroidTheme.accent.withValues(alpha: 0.08) : DroidTheme.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isActive ? DroidTheme.accent.withOpacity(0.4) : DroidTheme.border, width: 0.5)),
+                    color: isActive ? DroidTheme.accent.withValues(alpha: 0.4) : DroidTheme.border, width: 0.5)),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Row(children: [
                     // Icon
@@ -106,12 +106,12 @@ class _LocalModelsScreenState extends State<LocalModelsScreen> {
                           color: DroidTheme.txt, fontSize: 14, fontWeight: FontWeight.w600))),
                         if (m.downloaded) Container(
                           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                          decoration: BoxDecoration(color: DroidTheme.green.withOpacity(0.15), borderRadius: BorderRadius.circular(3)),
+                          decoration: BoxDecoration(color: DroidTheme.green.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(3)),
                           child: Text('DOWNLOADED', style: TextStyle(color: DroidTheme.green, fontSize: 8, fontWeight: FontWeight.w800))),
                       ]),
                       Text('${m.family} • ${m.size} • ${m.quantization}',
                         style: TextStyle(color: DroidTheme.txt3, fontSize: 11)),
-                    ]),
+                    ])),
                   ]),
                   const SizedBox(height: 8),
                   Text(m.description, style: TextStyle(color: DroidTheme.txt2, fontSize: 12, height: 1.4)),
