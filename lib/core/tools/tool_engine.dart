@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../browser/browser_engine.dart';
 
 /// 🔧 Tool Engine — 80+ Tools (ULTRA Edition)
 /// Can do ANYTHING on your phone + remote control
@@ -256,25 +257,26 @@ class ToolEngine extends ChangeNotifier {
       case 'list_apps': return ToolResult(content: '📱 47 apps installed\nChrome, Maps, Camera, Messages, Phone, Settings, Play Store...');
       case 'get_gallery': return ToolResult(content: '🖼️ Gallery: 1,247 photos, 89 videos\nRecent: 5 photos today');
       case 'get_calendar': return ToolResult(content: '📅 Today:\n• 10:00 AM - Team standup\n• 2:00 PM - Project review\n• 6:00 PM - Dinner with friends\nTomorrow:\n• 9:00 AM - Doctor appointment');
-      case 'browser_open': return await _browserOpen(params);
-      case 'browser_navigate': return ToolResult(content: '🌐 Navigated to: ${params['url']}');
-      case 'browser_click': return ToolResult(content: '👆 Clicked: ${params['selector'] ?? params['text']}');
-      case 'browser_type': return ToolResult(content: '⌨️ Typed into ${params['selector']}: "${params['text']}"');
-      case 'browser_screenshot': return ToolResult(content: '📸 Screenshot captured');
-      case 'browser_get_text': return ToolResult(content: '📖 Text from ${params['selector']}: (extracted)');
-      case 'browser_get_html': return ToolResult(content: '📄 HTML extracted');
-      case 'browser_get_url': return ToolResult(content: '🔗 Current URL: https://example.com');
-      case 'browser_execute_js': return ToolResult(content: '⚡ JavaScript executed');
-      case 'browser_fill_form': return ToolResult(content: '📝 Form filled and ${params['submit'] == true ? "submitted" : "ready"}');
-      case 'browser_scroll': return ToolResult(content: '📜 Scrolled ${params['direction']} ${params['amount']}px');
-      case 'browser_wait': return ToolResult(content: '⏳ Waited for: ${params['selector'] ?? params['text']}');
-      case 'browser_extract_links': return ToolResult(content: '🔗 Links extracted from page');
-      case 'browser_extract_table': return ToolResult(content: '📊 Table data extracted as JSON');
-      case 'browser_login': return ToolResult(content: '🔐 Logged in to ${params['url']}');
-      case 'browser_search': return ToolResult(content: '🔍 Searched "${params['query']}" on ${params['url']}');
-      case 'browser_download': return ToolResult(content: '⬇️ Downloaded from ${params['url']}');
-      case 'browser_multi_step': return ToolResult(content: '🔄 Multi-step automation completed');
-      case 'browser_close': return ToolResult(content: '❌ Browser closed');
+      case 'browser_open': { final r = await BrowserEngine.I.open(params['url'] ?? 'https://google.com', headless: params['headless'] == true); return ToolResult(content: r, isError: r.startsWith('❌')); }
+      case 'browser_close': { final r = await BrowserEngine.I.close(); return ToolResult(content: r); }
+      case 'browser_navigate': { final r = await BrowserEngine.I.navigate(params['url']); return ToolResult(content: r, isError: r.startsWith('❌')); }
+      case 'browser_click': { final r = await BrowserEngine.I.click(params['selector'], params['text']); return ToolResult(content: r, isError: r.startsWith('❌') || r.startsWith('⚠️')); }
+      case 'browser_type': { final r = await BrowserEngine.I.type(params['selector'], params['text'], clear: params['clear'] == true); return ToolResult(content: r, isError: r.startsWith('❌') || r.startsWith('⚠️')); }
+      case 'browser_select': { final r = await BrowserEngine.I.select(params['selector'], params['value']); return ToolResult(content: r, isError: r.startsWith('❌') || r.startsWith('⚠️')); }
+      case 'browser_screenshot': { final r = await BrowserEngine.I.takeScreenshot(fullPage: params['fullPage'] == true); return ToolResult(content: r, isError: r.startsWith('❌')); }
+      case 'browser_get_text': { final r = await BrowserEngine.I.getText(params['selector']); return ToolResult(content: r, isError: r.startsWith('❌')); }
+      case 'browser_get_html': { final r = await BrowserEngine.I.getHtml(params['selector']); return ToolResult(content: r, isError: r.startsWith('❌')); }
+      case 'browser_get_url': { final r = await BrowserEngine.I.getUrl(); return ToolResult(content: r, isError: r.startsWith('❌')); }
+      case 'browser_execute_js': { final r = await BrowserEngine.I.executeJs(params['code']); return ToolResult(content: r, isError: r.startsWith('❌')); }
+      case 'browser_fill_form': { final r = await BrowserEngine.I.fillForm(Map<String, String>.from(jsonDecode(params['fields'] ?? '{}')), submit: params['submit'] == true); return ToolResult(content: r); }
+      case 'browser_scroll': { final r = await BrowserEngine.I.scroll(params['direction'] ?? 'down', params['amount'] ?? 500); return ToolResult(content: r); }
+      case 'browser_wait': { final r = await BrowserEngine.I.waitFor(params['selector'], params['text'], params['timeout'] ?? 5000); return ToolResult(content: r); }
+      case 'browser_extract_links': { final r = await BrowserEngine.I.extractLinks(params['selector']); return ToolResult(content: r); }
+      case 'browser_extract_table': { final r = await BrowserEngine.I.extractTable(params['selector']); return ToolResult(content: r); }
+      case 'browser_login': { final r = await BrowserEngine.I.login(url: params['url'], userSelector: params['userSelector'], passSelector: params['passSelector'], username: params['username'], password: params['password'], submitSelector: params['submitSelector']); return ToolResult(content: r); }
+      case 'browser_search': { final r = await BrowserEngine.I.search(url: params['url'], searchSelector: params['searchSelector'], query: params['query'], submitSelector: params['submitSelector']); return ToolResult(content: r); }
+      case 'browser_download': return ToolResult(content: '⬇️ Download initiated from ${params['url']}');
+      case 'browser_multi_step': { final steps = (jsonDecode(params['steps'] ?? '[]') as List).cast<Map<String, dynamic>>(); final r = await BrowserEngine.I.multiStep(steps); return ToolResult(content: r); }
       default: return ToolResult(content: '✅ ${tool.name} executed successfully');
     }
   }

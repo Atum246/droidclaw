@@ -12,6 +12,7 @@ import 'core/voice/voice_engine.dart';
 import 'core/automation/automation_engine.dart';
 import 'core/models/local_model_manager.dart';
 import 'core/files/file_manager.dart';
+import 'core/browser/browser_engine.dart';
 import 'ui/theme/droid_theme.dart';
 import 'ui/screens/home_screen.dart';
 import 'ui/screens/onboarding_screen.dart';
@@ -28,6 +29,7 @@ void main() async {
   await AutomationEngine.I.init();
   await LocalModelManager.I.init();
   await FileManager.I.init();
+  // BrowserEngine initializes lazily on first use
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, statusBarIconBrightness: Brightness.light,
@@ -47,6 +49,7 @@ void main() async {
     ChangeNotifierProvider(create: (_) => AutomationEngine.I),
     ChangeNotifierProvider(create: (_) => LocalModelManager.I),
     ChangeNotifierProvider(create: (_) => FileManager.I),
+    ChangeNotifierProvider(create: (_) => BrowserEngine.I),
   ], child: DroidClawApp(onboardingDone: onboardingDone)));
 }
 

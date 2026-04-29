@@ -4,6 +4,7 @@ import '../theme/droid_theme.dart';
 import 'chat_screen.dart';
 import 'skills_screen.dart';
 import 'tools_screen.dart';
+import 'browser_screen.dart';
 import 'memory_screen.dart';
 import 'settings_screen.dart';
 import 'automation_screen.dart';
@@ -19,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final _screens = const [
     ChatScreen(), SkillsScreen(), ToolsScreen(),
-    MemoryScreen(), AutomationScreen(), SettingsScreen(),
+    BrowserViewer(), MemoryScreen(), AutomationScreen(), SettingsScreen(),
   ];
 
   @override
@@ -40,9 +41,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 _nav(0, '💬', 'Chat'),
                 _nav(1, '⚡', 'Skills'),
                 _nav(2, '🔧', 'Tools'),
-                _nav(3, '🧠', 'Memory'),
-                _nav(4, '🔄', 'Auto'),
-                _nav(5, '⚙️', 'Settings'),
+                _nav(3, '🌍', 'Browser'),
+                _nav(4, '🧠', 'Memory'),
+                _nav(5, '🔄', 'Auto'),
+                _nav(6, '⚙️', 'Settings'),
               ],
             ),
           ),

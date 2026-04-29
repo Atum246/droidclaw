@@ -26,7 +26,7 @@ class ToolsScreen extends StatelessWidget {
           itemCount: cats.length, itemBuilder: (_, i) {
             final cat = cats.keys.elementAt(i);
             final tools = cats[cat]!;
-            final icons = {'filesystem':'📁','web':'🌐','code':'💻','memory':'🧠','phone':'📱','scheduling':'⏰','integration':'🔗','media':'🎨'};
+            final icons = {'filesystem':'📁','web':'🌐','code':'💻','memory':'🧠','phone':'📱','scheduling':'⏰','integration':'🔗','media':'🎨','browser':'🌍','calls':'📞','messaging':'💬','apps':'📲','location':'📍','camera':'📸','security':'🔐','device':'📊','remote':'🖥️','automation':'🤖','external':'📡'};
             return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Padding(padding: const EdgeInsets.only(left: 4, top: 10, bottom: 6),
                 child: Row(children: [Text(icons[cat] ?? '🔧', style: const TextStyle(fontSize: 14)), const SizedBox(width: 5),
