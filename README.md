@@ -4,12 +4,12 @@
   <img src="https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter&style=for-the-badge" />
   <img src="https://img.shields.io/badge/Android-5.0+-green?logo=android&style=for-the-badge" />
   <img src="https://img.shields.io/badge/AI_Providers-35+-purple?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Tools-80+-red?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Tools-90+-red?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Skills-110+-orange?style=for-the-badge" />
 </p>
 
 <p align="center">
-  <b>OpenClaw in your pocket. Not a chat app — a full AI agent platform that can do ANYTHING on your phone.</b>
+  <b>OpenClaw in your pocket. Not a chat app — a fully autonomous AI agent that can do ANYTHING on your phone.</b>
 </p>
 
 ---
