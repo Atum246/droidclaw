@@ -337,6 +337,7 @@ class AIProvider {
   AIProvider copyWith({String? baseUrl}) => AIProvider(id: id, name: name, icon: icon,
     baseUrl: baseUrl ?? this.baseUrl, isLocal: isLocal, isCustom: isCustom, models: models);
 
+  /// Chat with the AI provider
   Future<ProviderResponse> chat({required String modelId, required List<Map<String, dynamic>> messages, List<Map<String, dynamic>>? tools}) async {
     final apiKey = await AIProviderManager.I.getApiKey(id);
     final headers = <String, String>{'Content-Type': 'application/json',
@@ -351,6 +352,29 @@ class AIProvider {
           name: tc['function']['name'], arguments: jsonDecode(tc['function']['arguments'] ?? '{}'))).toList() ?? []);
     }
     throw Exception('API Error ${resp.statusCode}: ${resp.body}');
+  }
+
+  /// Stream chat responses
+  Stream<String> chatStream({required String modelId, required List<Map<String, dynamic>> messages}) async* {
+    final apiKey = await AIProviderManager.I.getApiKey(id);
+    final headers = <String, String>{'Content-Type': 'application/json',
+      if (apiKey != null && apiKey.isNotEmpty) 'Authorization': 'Bearer $apiKey'};
+    final body = <String, dynamic>{'model': modelId, 'messages': messages, 'stream': true, 'temperature': 0.7};
+    final req = http.StreamedRequest('POST', Uri.parse('$baseUrl/chat/completions'))
+      ..headers.addAll(headers)
+      ..bodyBytes = utf8.encode(jsonEncode(body));
+    final resp = await http.Client().send(req);
+    if (resp.statusCode == 200) {
+      await resp.stream.transform(utf8.decoder).transform(const LineSplitter()).forEach((line) {
+        if (line.startsWith('data: ')) {
+          final json = jsonDecode(line.substring(6));
+          final delta = json['choices'][0]['delta'];
+          if (delta['content'] != null) yield delta['content'];
+        }
+      });
+    } else {
+      throw Exception('API Error ${resp.statusCode}');
+    }
   }
 }
 
