@@ -17,6 +17,10 @@ import 'core/agents/sub_agent_manager.dart';
 import 'core/tools/tool_creator.dart';
 import 'core/skills/skill_creator.dart';
 import 'core/research/deep_research_engine.dart';
+import 'core/heartbeat/heartbeat_engine.dart';
+import 'core/streaming/streaming_engine.dart';
+import 'core/multimodal/multimodal_engine.dart';
+import 'core/workflow/workflow_builder.dart';
 import 'ui/theme/droid_theme.dart';
 import 'ui/screens/home_screen.dart';
 import 'ui/screens/onboarding_screen.dart';
@@ -36,6 +40,8 @@ void main() async {
   // BrowserEngine initializes lazily on first use
   await ToolCreator.I.init();
   await SkillCreator.I.init();
+  await HeartbeatEngine.I.init();
+  await WorkflowBuilder.I.init();
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, statusBarIconBrightness: Brightness.light,
@@ -60,6 +66,10 @@ void main() async {
     ChangeNotifierProvider(create: (_) => ToolCreator.I),
     ChangeNotifierProvider(create: (_) => SkillCreator.I),
     ChangeNotifierProvider(create: (_) => DeepResearchEngine.I),
+    ChangeNotifierProvider(create: (_) => HeartbeatEngine.I),
+    ChangeNotifierProvider(create: (_) => StreamingEngine.I),
+    ChangeNotifierProvider(create: (_) => MultiModalEngine.I),
+    ChangeNotifierProvider(create: (_) => WorkflowBuilder.I),
   ], child: DroidClawApp(onboardingDone: onboardingDone)));
 }
 

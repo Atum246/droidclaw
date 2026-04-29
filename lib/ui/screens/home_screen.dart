@@ -8,6 +8,7 @@ import 'browser_screen.dart';
 import 'memory_screen.dart';
 import 'settings_screen.dart';
 import 'automation_screen.dart';
+import 'dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _tab = 0;
 
   final _screens = const [
-    ChatScreen(), SkillsScreen(), ToolsScreen(),
+    ChatScreen(), DashboardScreen(), SkillsScreen(), ToolsScreen(),
     BrowserViewer(), MemoryScreen(), AutomationScreen(), SettingsScreen(),
   ];
 
@@ -39,12 +40,13 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _nav(0, '💬', 'Chat'),
-                _nav(1, '⚡', 'Skills'),
-                _nav(2, '🔧', 'Tools'),
-                _nav(3, '🌍', 'Browser'),
-                _nav(4, '🧠', 'Memory'),
-                _nav(5, '🔄', 'Auto'),
-                _nav(6, '⚙️', 'Settings'),
+                _nav(1, '📊', 'Dash'),
+                _nav(2, '⚡', 'Skills'),
+                _nav(3, '🔧', 'Tools'),
+                _nav(4, '🌍', 'Browser'),
+                _nav(5, '🧠', 'Memory'),
+                _nav(6, '🔄', 'Auto'),
+                _nav(7, '⚙️', 'Settings'),
               ],
             ),
           ),

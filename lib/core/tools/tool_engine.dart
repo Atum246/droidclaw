@@ -7,6 +7,8 @@ import '../agents/sub_agent_manager.dart';
 import '../tools/tool_creator.dart';
 import '../skills/skill_creator.dart';
 import '../research/deep_research_engine.dart';
+import '../multimodal/multimodal_engine.dart';
+import '../workflow/workflow_builder.dart';
 
 /// 🔧 Tool Engine — 80+ Tools (ULTRA Edition)
 /// Can do ANYTHING on your phone + remote control
@@ -255,6 +257,23 @@ class ToolEngine extends ChangeNotifier {
     _reg('create_skill', 'Auto-create a new skill', '⚡', 'meta', {'name': 'string', 'description': 'string', 'category': 'string', 'triggers': 'string', 'systemPrompt': 'string'});
     _reg('list_created_tools', 'List all auto-created tools', '📋', 'meta', {});
     _reg('list_created_skills', 'List all auto-created skills', '📋', 'meta', {});
+
+    // ═══════════════════════════════════════════
+    // 🖼️ MULTI-MODAL (5)
+    // ═══════════════════════════════════════════
+    _reg('process_image', 'Analyze/OCR/describe an image', '🖼️', 'multimodal', {'path': 'string', 'task': 'string', 'prompt': 'string'});
+    _reg('process_voice', 'Transcribe/analyze voice notes', '🎤', 'multimodal', {'path': 'string', 'task': 'string'});
+    _reg('process_document', 'Read/summarize/analyze documents', '📄', 'multimodal', {'path': 'string', 'task': 'string', 'prompt': 'string'});
+    _reg('process_any', 'Auto-detect and process any file', '📁', 'multimodal', {'path': 'string', 'prompt': 'string'});
+
+    // ═══════════════════════════════════════════
+    // 🎨 WORKFLOW (5)
+    // ═══════════════════════════════════════════
+    _reg('create_workflow', 'Create automation workflow', '🎨', 'workflow', {'name': 'string', 'description': 'string', 'steps': 'string'});
+    _reg('create_workflow_nl', 'Create workflow from description', '✨', 'workflow', {'description': 'string'});
+    _reg('run_workflow', 'Run a workflow', '▶️', 'workflow', {'workflowId': 'string', 'inputs': 'string'});
+    _reg('list_workflows', 'List all workflows', '📋', 'workflow', {});
+    _reg('list_workflow_templates', 'List workflow templates', '📋', 'workflow', {});
   }
 
   Future<ToolResult> execute(String name, Map<String, dynamic> params) async {
@@ -337,6 +356,51 @@ class ToolEngine extends ChangeNotifier {
         if (skills.isEmpty) return ToolResult(content: '📋 No auto-created skills yet');
         final list = skills.values.map((s) => '• ${s.name}: ${s.description}').join('\n');
         return ToolResult(content: '📋 Auto-created skills:\n$list');
+      }
+
+      // ═══ MULTI-MODAL ═══
+      case 'process_image': {
+        final r = await MultiModalEngine.I.processImage(path: params['path'], task: params['task'] ?? 'analyze', customPrompt: params['prompt']);
+        return ToolResult(content: r.isSuccess ? '🖼️ Image Analysis:\n${r.result}' : '❌ ${r.error}', isError: !r.isSuccess);
+      }
+      case 'process_voice': {
+        final r = await MultiModalEngine.I.processVoice(path: params['path'], task: params['task'] ?? 'transcribe');
+        return ToolResult(content: r.isSuccess ? '🎤 Voice Analysis:\n${r.result}' : '❌ ${r.error}', isError: !r.isSuccess);
+      }
+      case 'process_document': {
+        final r = await MultiModalEngine.I.processDocument(path: params['path'], task: params['task'] ?? 'summarize', customPrompt: params['prompt']);
+        return ToolResult(content: r.isSuccess ? '📄 Document Analysis:\n${r.result}' : '❌ ${r.error}', isError: !r.isSuccess);
+      }
+      case 'process_any': {
+        final r = await MultiModalEngine.I.processAny(path: params['path'], customPrompt: params['prompt']);
+        return ToolResult(content: r.isSuccess ? '📁 File Analysis:\n${r.result}' : '❌ ${r.error}', isError: !r.isSuccess);
+      }
+
+      // ═══ WORKFLOW ═══
+      case 'create_workflow': {
+        final stepsJson = jsonDecode(params['steps'] ?? '[]') as List;
+        final steps = stepsJson.map((s) => WorkflowStep(id: DateTime.now().millisecondsSinceEpoch.toString(), type: StepType.action, label: s['label'] ?? 'Step', config: Map<String, dynamic>.from(s['config'] ?? {}))).toList();
+        final w = await WorkflowBuilder.I.createWorkflow(name: params['name'], description: params['description'], steps: steps);
+        return ToolResult(content: '🎨 Workflow created: ${w.name}\nID: ${w.id}\nSteps: ${w.steps.length}');
+      }
+      case 'create_workflow_nl': {
+        final w = await WorkflowBuilder.I.fromNaturalLanguage(params['description']);
+        return ToolResult(content: '✨ Workflow created: ${w.name}\nID: ${w.id}\nSteps: ${w.steps.length}\n${w.description}');
+      }
+      case 'run_workflow': {
+        final run = await WorkflowBuilder.I.runWorkflow(params['workflowId'], inputs: params['inputs'] != null ? Map<String, dynamic>.from(jsonDecode(params['inputs'])) : null);
+        return ToolResult(content: '▶️ Workflow running: ${run.id}\nStatus: ${run.status.name}');
+      }
+      case 'list_workflows': {
+        final ws = WorkflowBuilder.I.workflows;
+        if (ws.isEmpty) return ToolResult(content: '📋 No workflows yet');
+        final list = ws.values.map((w) => '• ${w.name}: ${w.description} [${w.steps.length} steps]').join('\n');
+        return ToolResult(content: '📋 Workflows:\n$list');
+      }
+      case 'list_workflow_templates': {
+        final ts = WorkflowBuilder.I.templates;
+        final list = ts.map((t) => '• ${t.icon} ${t.name}: ${t.description}').join('\n');
+        return ToolResult(content: '📋 Templates:\n$list');
       }
 
       default:
